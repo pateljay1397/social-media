@@ -6,14 +6,17 @@ const { validateRegisterInput, validateLoginInput } = require('../../util/valida
 const {SECRET_KEY} = require('../../config');
 const User = require("../../models/User");
 
+const generateToken = (user) =>
+  jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email
+    },
+    SECRET_KEY,
+    { expiresIn: '1h' }
+  );
 
-function generateToken(user){
-    jwt.sign({
-        id: user.id,
-        email: user.email,
-        username: user.username
-    }, SECRET_KEY, { expiresIn: '1h'});
-}
 
 module.exports = {
   Mutation: {
