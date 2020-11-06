@@ -1,42 +1,37 @@
 import gql from "graphql-tag";
 import React, { useState } from "react";
-import {useMutation} from '@apollo/react-hooks';
+import { useMutation } from "@apollo/react-hooks";
 import { Button, Form } from "semantic-ui-react";
 
+import { useForm } from "../util/hooks";
+
 function Register(props) {
-    const [errors, setErrors] = useState({});
-  const [values, setValues] = useState({
+  const [errors, setErrors] = useState({});
+  
+  const { onChange, onSubmit, values } = useForm(registerUser, {
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  
+  const [addUser, { loading }] = useMutation(REGISTER_USER, {
+    update(_ , result) {
+      props.history.push("/");
+    },
+    onError(err) {
+      setErrors(err.graphQLErrors[0].extensions.exception.errors);
+    },
+    variables: values,
+  });
 
-  const onChange = (Event) => {
-      setValues({ ...values, [Event.target.name]: Event.target.value});
+  function registerUser(){
+    addUser();
   }
-
-  const [addUser, {loading}] = useMutation(REGISTER_USER, {
-    update(proxy, result){
-        console.log(result);
-        props.history.push('/');
-    },
-    onError(err){
-        console.log(err.graphQLErrors[0].extensions.exception.errors);
-        setErrors(err.graphQLErrors[0].extensions.exception.errors);
-    },
-    variables: values
-})
-
-  const onSubmit = (Event) => {
-      Event.preventDefault();
-      addUser()
-  };
-
 
   return (
     <div className="form-container">
-      <Form onSubmit={onSubmit} noValidate className={loading ? "loading" : ''}>
+      <Form onSubmit={onSubmit} noValidate className={loading ? "loading" : ""}>
         <h1>Register</h1>
         <Form.Input
           label="Username"
@@ -78,36 +73,40 @@ function Register(props) {
           Register
         </Button>
       </Form>
-    {Object.keys(errors).length > 0 && (
-        <div className="ui error message"> 
-        <ul className="list">
-          {Object.values(errors).map((value) => (
+      {Object.keys(errors).length > 0 && (
+        <div className="ui error message">
+          <ul className="list">
+            {Object.values(errors).map((value) => (
               <li key={value}>{value}</li>
-          ))}
-        </ul>
+            ))}
+          </ul>
         </div>
-    )}
+      )}
     </div>
   );
 }
 
 const REGISTER_USER = gql`
-mutation register(
+  mutation register(
     $username: String!
     $email: String!
     $password: String!
     $confirmPassword: String!
-){
+  ) {
     register(
-        registerInput: {
-            username: $username
-            email: $email
-            password: $password
-            confirmPassword: $confirmPassword
-        }
-    ){
-        id email username createdAt token
+      registerInput: {
+        username: $username
+        email: $email
+        password: $password
+        confirmPassword: $confirmPassword
+      }
+    ) {
+      id
+      email
+      username
+      createdAt
+      token
     }
-}
-`
+  }
+`;
 export default Register;
