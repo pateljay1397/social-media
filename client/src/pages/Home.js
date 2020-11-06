@@ -8,7 +8,7 @@ import PostCard from "../components/PostCard";
 function Home() {
   const {
     loading,
-    data: { getPosts: posts }
+    data: { getPosts:posts }
   } = useQuery(FETCH_POSTS_QUERY);
 
   return (
