@@ -12,7 +12,7 @@ function Home() {
   const { user } = useContext(AuthContext);
   const {
     loading,
-    data: { getPosts:posts },
+    data: { getPosts: posts },
   } = useQuery(FETCH_POSTS_QUERY);
 
   return (
